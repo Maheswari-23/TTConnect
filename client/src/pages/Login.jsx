@@ -16,7 +16,7 @@ function Login() {
 
     try {
       // 1️⃣ Login API call
-      const { data } = await API.post("/auth/login", {
+      const { data } = await API.post("/api/auth/login", {
         email,
         password
       });

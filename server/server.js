@@ -18,16 +18,31 @@ const app = express();
 const server = http.createServer(app);
 
 // ======================
+// Allowed Origins
+// ======================
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ttconnect.onrender.com",
+  "https://ttconnect-1.onrender.com"
+];
+
+// ======================
 // Middleware
 // ======================
 
-// ✅ UPDATED CORS (Works for both Local + Render)
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://ttconnect.onrender.com"
-    ],
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true
   })
 );
@@ -37,6 +52,7 @@ app.use(express.json());
 // ======================
 // Root Route
 // ======================
+
 app.get("/", (req, res) => {
   res.send("TTConnect Backend Running 🚀");
 });
@@ -44,6 +60,7 @@ app.get("/", (req, res) => {
 // ======================
 // Routes
 // ======================
+
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/match", require("./routes/matchRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
@@ -51,12 +68,10 @@ app.use("/api/users", require("./routes/userRoutes"));
 // ======================
 // Socket.io Setup
 // ======================
+
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:5173",
-      "https://ttconnect.onrender.com"
-    ],
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -77,11 +92,16 @@ io.on("connection", (socket) => {
 // ======================
 // Start Server
 // ======================
+
 const PORT = process.env.PORT || 5002;
 
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
+// ======================
+// Match Status Watcher
+// ======================
 
 const startMatchWatcher = require("./services/matchStatusService");
 startMatchWatcher(io);
