@@ -14,29 +14,35 @@ function CreateMatchModal({ close }) {
     }
 
     try {
+      const token = localStorage.getItem("token");
+
       // Convert time input to proper ISO format
       const now = new Date();
-      const selectedTime = new Date(`${now.toDateString()} ${startTime}`);
+      const selectedTime = new Date(
+        `${now.toDateString()} ${startTime}`
+      );
 
       await API.post(
-        "/match",
+        "/api/match",   // ✅ FIXED ROUTE
         {
           mode,
           startTime: selectedTime.toISOString()
         },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
 
       alert("Match created successfully 🏓");
       close();
-
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || "Failed to create match");
+      alert(
+        error.response?.data?.message ||
+          "Failed to create match"
+      );
     }
   };
 
@@ -49,7 +55,12 @@ function CreateMatchModal({ close }) {
           <select
             value={mode}
             onChange={(e) =>
-              setMode(e.target.value === "Singles (2 Players)" ? "SINGLES" : "DOUBLES")
+              setMode(
+                e.target.value ===
+                  "Singles (2 Players)"
+                  ? "SINGLES"
+                  : "DOUBLES"
+              )
             }
             style={inputStyle}
           >
@@ -60,7 +71,9 @@ function CreateMatchModal({ close }) {
           <input
             type="time"
             value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
+            onChange={(e) =>
+              setStartTime(e.target.value)
+            }
             style={inputStyle}
           />
 
@@ -75,7 +88,10 @@ function CreateMatchModal({ close }) {
 
         <button
           onClick={close}
-          style={{ marginTop: "10px", width: "100%" }}
+          style={{
+            marginTop: "10px",
+            width: "100%"
+          }}
           className="btn-outline"
         >
           Cancel

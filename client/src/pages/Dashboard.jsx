@@ -11,14 +11,15 @@ function Dashboard() {
 
   const fetchMatches = async () => {
     try {
-      const { data } = await API.get("/match", {
+      const token = localStorage.getItem("token");
+
+      const { data } = await API.get("/api/match", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+          Authorization: `Bearer ${token}`
         }
       });
 
-      setMatches(data.filter(m => m.status !== "COMPLETED"));
-
+      setMatches(data.filter((m) => m.status !== "COMPLETED"));
     } catch (error) {
       console.error("Error fetching matches:", error);
     }
