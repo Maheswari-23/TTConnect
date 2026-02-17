@@ -1,0 +1,32 @@
+# Node modules
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment variables
+.env
+server/.env
+client/.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build folders
+client/dist/
+client/build/
+
+# VS Code
+.vscode/
+
+# Package lock (optional but recommended to keep)
+# package-lock.json
+
+# Firebase private key
+server/config/serviceAccountKey.json
+
