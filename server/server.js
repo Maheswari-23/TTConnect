@@ -20,9 +20,14 @@ const server = http.createServer(app);
 // ======================
 // Middleware
 // ======================
+
+// ✅ UPDATED CORS (Works for both Local + Render)
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend Vite
+    origin: [
+      "http://localhost:5173",
+      "https://ttconnect.onrender.com"
+    ],
     credentials: true
   })
 );
@@ -41,15 +46,19 @@ app.get("/", (req, res) => {
 // ======================
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/match", require("./routes/matchRoutes"));
-app.use("/api/users", require("./routes/userRoutes")); // optional if used
+app.use("/api/users", require("./routes/userRoutes"));
 
 // ======================
 // Socket.io Setup
 // ======================
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"]
+    origin: [
+      "http://localhost:5173",
+      "https://ttconnect.onrender.com"
+    ],
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
@@ -66,11 +75,6 @@ io.on("connection", (socket) => {
 });
 
 // ======================
-// Reminder Service (Auto 5 min notify)
-// ======================
-//require("./services/reminderService"); // if you created it
-
-// ======================
 // Start Server
 // ======================
 const PORT = process.env.PORT || 5002;
@@ -81,4 +85,3 @@ server.listen(PORT, () => {
 
 const startMatchWatcher = require("./services/matchStatusService");
 startMatchWatcher(io);
-
