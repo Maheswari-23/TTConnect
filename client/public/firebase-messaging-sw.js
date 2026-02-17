@@ -13,20 +13,18 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// =====================================
+// ==========================================
 // BACKGROUND MESSAGE HANDLER
-// =====================================
+// ==========================================
 messaging.onBackgroundMessage(function (payload) {
   try {
     const data = payload.data || {};
 
     const title =
-      (payload.notification && payload.notification.title) ||
-      "TTConnect";
+      payload.notification?.title || "TTConnect";
 
     const body =
-      (payload.notification && payload.notification.body) ||
-      "New Match Available";
+      payload.notification?.body || "New Match Available";
 
     const options = {
       body,
@@ -41,28 +39,33 @@ messaging.onBackgroundMessage(function (payload) {
     };
 
     self.registration.showNotification(title, options);
+
   } catch (err) {
     console.error("Error showing background notification", err);
   }
 });
 
-// =====================================
-// NOTIFICATION CLICK HANDLER
-// =====================================
+// ==========================================
+// NOTIFICATION CLICK HANDLER (PRODUCTION)
+// ==========================================
 self.addEventListener("notificationclick", function (event) {
   event.notification.close();
 
   const action = event.action;
   const data = event.notification.data || {};
 
+  const API_URL = "https://ttconnect.onrender.com";
+  const FRONTEND_URL = "https://ttconnect-1.onrender.com";
+
   if (data && data.actionToken && (action === "YES" || action === "NO")) {
+
     const payload = {
       actionToken: data.actionToken,
       action
     };
 
     event.waitUntil(
-      fetch("http://localhost:5002/api/match/respond", {
+      fetch(`${API_URL}/api/match/respond`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -70,17 +73,16 @@ self.addEventListener("notificationclick", function (event) {
         body: JSON.stringify(payload)
       })
         .then(() => {
-          // Optional: open app after action
-          return clients.openWindow("http://localhost:5173/dashboard");
+          return clients.openWindow(`${FRONTEND_URL}/dashboard`);
         })
         .catch((err) =>
           console.error("Error posting notification response", err)
         )
     );
+
   } else {
-    // If user clicks notification body instead of button
     event.waitUntil(
-      clients.openWindow("http://localhost:5173/dashboard")
+      clients.openWindow(`${FRONTEND_URL}/dashboard`)
     );
   }
 });
