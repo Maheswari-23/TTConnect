@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://ttconnect-api.onrender.com/api",
+  baseURL: "https://ttconnect.onrender.com/",
 });
 
 export default API;
