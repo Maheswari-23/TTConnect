@@ -15,7 +15,8 @@ function Signup() {
     setLoading(true);
 
     try {
-      await API.post("/auth/signup", {
+      // ✅ Correct Signup Route
+      await API.post("/api/auth/signup", {
         name,
         email,
         password
@@ -33,7 +34,15 @@ function Signup() {
 
   return (
     <div className="container" style={{ marginTop: "100px" }}>
-      <div className="card" style={{ maxWidth: "400px", margin: "auto", padding: "30px" }}>
+      <div
+        className="card"
+        style={{
+          maxWidth: "400px",
+          margin: "auto",
+          padding: "30px",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.08)"
+        }}
+      >
         <h2 style={{ marginBottom: "20px", textAlign: "center" }}>
           Create Account
         </h2>
@@ -75,6 +84,7 @@ function Signup() {
           </button>
         </form>
 
+        {/* ✅ Login Link */}
         <p style={{ marginTop: "15px", textAlign: "center" }}>
           Already have an account? <Link to="/">Login</Link>
         </p>

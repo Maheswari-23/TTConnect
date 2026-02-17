@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import API from "../api/axios";
 import { requestNotificationPermission } from "../firebase";
 
@@ -15,24 +15,24 @@ function Login() {
     setLoading(true);
 
     try {
-      // 1️⃣ Login API call
+      // ✅ Correct Login Route
       const { data } = await API.post("/api/auth/login", {
         email,
         password
       });
 
-      // 2️⃣ Store auth data
+      // Store auth data
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.userId);
       localStorage.setItem("name", data.name);
 
-      // 3️⃣ Request FCM permission
+      // Request FCM permission
       const fcmToken = await requestNotificationPermission();
 
-      // 4️⃣ Save FCM token in backend
+      // ✅ Correct Save Token Route
       if (fcmToken) {
         await API.post(
-          "/auth/save-token",
+          "/api/auth/save-token",
           { token: fcmToken },
           {
             headers: {
@@ -42,7 +42,6 @@ function Login() {
         );
       }
 
-      // 5️⃣ Redirect to dashboard
       navigate("/dashboard");
 
     } catch (error) {
@@ -89,16 +88,17 @@ function Login() {
           <button
             type="submit"
             className="btn-primary"
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "8px"
-            }}
+            style={{ width: "100%" }}
             disabled={loading}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        {/* ✅ Signup Link Added */}
+        <p style={{ marginTop: "15px", textAlign: "center" }}>
+          New user? <Link to="/signup">Create an account</Link>
+        </p>
       </div>
     </div>
   );
