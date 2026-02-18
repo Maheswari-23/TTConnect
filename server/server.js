@@ -23,7 +23,7 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://ttconnect.onrender.com",
+  "https://ttconnect-backend.onrender.com",
   "https://ttconnect-1.onrender.com"
 ];
 
