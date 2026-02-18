@@ -4,34 +4,38 @@ import API from "../api/axios";
 function CreateMatchModal({ close }) {
   const [mode, setMode] = useState("SINGLES");
   const [startTime, setStartTime] = useState("");
+  const [loading, setLoading] = useState(false); // ✅ NEW
 
   const handleCreate = async (e) => {
     e.preventDefault();
 
+    if (loading) return; // ✅ Prevent double click
+    setLoading(true);
+
     if (!startTime) {
       alert("Please select time");
+      setLoading(false);
       return;
     }
 
     try {
       const token = localStorage.getItem("token");
 
-      // Convert time input to proper ISO format
       const now = new Date();
       const selectedTime = new Date(
         `${now.toDateString()} ${startTime}`
       );
 
       await API.post(
-        "/api/match",   // ✅ FIXED ROUTE
+        "/api/match",
         {
           mode,
-          startTime: selectedTime.toISOString()
+          startTime: selectedTime.toISOString(),
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -43,6 +47,8 @@ function CreateMatchModal({ close }) {
         error.response?.data?.message ||
           "Failed to create match"
       );
+    } finally {
+      setLoading(false); // ✅ Reset loading
     }
   };
 
@@ -56,13 +62,13 @@ function CreateMatchModal({ close }) {
             value={mode}
             onChange={(e) =>
               setMode(
-                e.target.value ===
-                  "Singles (2 Players)"
+                e.target.value === "Singles (2 Players)"
                   ? "SINGLES"
                   : "DOUBLES"
               )
             }
             style={inputStyle}
+            disabled={loading} // ✅ Disable while loading
           >
             <option>Singles (2 Players)</option>
             <option>Doubles (4 Players)</option>
@@ -75,14 +81,16 @@ function CreateMatchModal({ close }) {
               setStartTime(e.target.value)
             }
             style={inputStyle}
+            disabled={loading} // ✅ Disable while loading
           />
 
           <button
             type="submit"
             className="btn-primary"
             style={{ width: "100%" }}
+            disabled={loading} // ✅ Disable button
           >
-            Create
+            {loading ? "Creating..." : "Create"}
           </button>
         </form>
 
@@ -90,9 +98,10 @@ function CreateMatchModal({ close }) {
           onClick={close}
           style={{
             marginTop: "10px",
-            width: "100%"
+            width: "100%",
           }}
           className="btn-outline"
+          disabled={loading} // ✅ Prevent closing mid-request
         >
           Cancel
         </button>
@@ -110,7 +119,7 @@ const overlayStyle = {
   background: "rgba(0,0,0,0.4)",
   display: "flex",
   justifyContent: "center",
-  alignItems: "center"
+  alignItems: "center",
 };
 
 const inputStyle = {
@@ -118,7 +127,7 @@ const inputStyle = {
   padding: "10px",
   marginBottom: "15px",
   borderRadius: "8px",
-  border: "1px solid #d1d5db"
+  border: "1px solid #d1d5db",
 };
 
 export default CreateMatchModal;
