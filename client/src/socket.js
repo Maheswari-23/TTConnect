@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
 
-const socket = io("https://ttconnect.onrender.com/");
+const socket = io("https://ttconnect-backend.onrender.com");
 
 export default socket;
