@@ -7,25 +7,32 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 
+/** Redirect logged-in users away from public pages → dashboard */
+function PublicRoute({ children }) {
+  const token = localStorage.getItem("token");
+  return token ? <Navigate to="/dashboard" replace /> : children;
+}
+
+/** Redirect guests away from protected pages → login */
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" />;
+  return token ? children : <Navigate to="/login" replace />;
 }
 
 function App() {
   useEffect(() => {
     (async () => {
-      const token = await requestNotificationPermission();
+      const fcmToken = await requestNotificationPermission();
       const authToken = localStorage.getItem("token");
-      if (token && authToken) {
+      if (fcmToken && authToken) {
         try {
-          await fetch("/api/users/save-fcm-token", {
+          await fetch("/api/auth/save-token", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: authToken,
+              Authorization: `Bearer ${authToken}`,
             },
-            body: JSON.stringify({ token }),
+            body: JSON.stringify({ token: fcmToken }),
           });
         } catch (err) {
           console.error("Error saving FCM token", err);
@@ -37,12 +44,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* Public routes — logged-in users get redirected to /dashboard */}
+        <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
 
-        {/* Protected routes */}
+        {/* Protected route — guests get redirected to /login */}
         <Route
           path="/dashboard"
           element={
@@ -53,7 +60,7 @@ function App() {
         />
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
